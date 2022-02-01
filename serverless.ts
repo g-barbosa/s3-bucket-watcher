@@ -1,7 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 const serverlessConfiguration: AWS = {
-  service: 'serveless',
+  service: 'serverless',
   frameworkVersion: '2',
   plugins: ['serverless-esbuild', 'serverless-dynamodb-local','serverless-offline'],
   provider: {
@@ -17,21 +17,28 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
     },
     lambdaHashingVersion: '20201221',
-    iamRoleStatements: [{
-      Effect: "Allow",
-      Action: ["dynamodb:*"],
-      Resource: ["*"]
-    }]
+    iamRoleStatements: [
+      {
+        Effect: "Allow",
+        Action: ["dynamodb:*"],
+        Resource: ["*"]
+      },
+      {
+        Effect: "Allow",
+        Action: ["s3:*"],
+        Resource: ["*"]
+      }
+    ]
   },
   // import the function via paths
   functions: { 
-    saveUsers: {
-      handler: "src/functions/saveUsers.handler",
+    s3Watcher: {
+      handler: "src/functions/s3Watcher.handler",
       events: [{
-        http: {
-          path: "saveUsers",
-          method: "post",
-          cors: true
+        s3: {
+          bucket: process.env.BUCKET_NAME,
+          event: 's3:ObjectCreated:*',
+          existing: true
         }
       }]
     }
@@ -47,6 +54,7 @@ const serverlessConfiguration: AWS = {
       define: { 'require.resolve': undefined },
       platform: 'node',
       concurrency: 10,
+      external: ['axios']
     },
     dynamodb: {
       stages: ['dev', 'local'],
@@ -79,6 +87,12 @@ const serverlessConfiguration: AWS = {
               KeyType: "HASH"
             }
           ]
+        }
+      },
+      s3WithLambda: {
+        Type: 'AWS::S3::Bucket',
+        Properties: {
+          BucketName: process.env.BUCKET_NAME
         }
       }
     }
