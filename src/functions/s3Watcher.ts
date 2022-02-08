@@ -21,7 +21,7 @@ export const handler = async (event) => {
   await axios
     .post(baseUrl, {
       chat_id: process.env.CHAT_ID,
-      text: "Houve mais um upload no seu bucket s3"
+      text: "✔️ O SEU BUCKET S3 RECEBEU UM NOVO UPLOAD!"
     })
     .then(res => {
       console.log(res)
