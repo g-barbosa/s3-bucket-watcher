@@ -3,7 +3,7 @@ import type { AWS } from '@serverless/typescript';
 const serverlessConfiguration: AWS = {
   service: 'serverless',
   frameworkVersion: '2',
-  plugins: ['serverless-esbuild', 'serverless-dynamodb-local','serverless-offline'],
+  plugins: ['serverless-esbuild','serverless-offline'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -20,17 +20,12 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       {
         Effect: "Allow",
-        Action: ["dynamodb:*"],
-        Resource: ["*"]
-      },
-      {
-        Effect: "Allow",
         Action: ["s3:*"],
         Resource: ["*"]
       }
     ]
   },
-  // import the function via paths
+
   functions: { 
     s3Watcher: {
       handler: "src/functions/s3Watcher.handler",
@@ -67,28 +62,6 @@ const serverlessConfiguration: AWS = {
   },
   resources: {
     Resources: {
-      dbCertificateUsers: {
-        Type: "AWS::DynamoDB::Table",
-        Properties: {
-          TableName: "users",
-          ProvisionedThroughput: {
-            ReadCapacityUnits: 5,
-            WriteCapacityUnits: 5
-          },
-          AttributeDefinitions: [
-            {
-              AttributeName: "id",
-              AttributeType: "S"
-            }
-          ],
-          KeySchema: [
-            {
-              AttributeName: "id",
-              KeyType: "HASH"
-            }
-          ]
-        }
-      },
       s3WithLambda: {
         Type: 'AWS::S3::Bucket',
         Properties: {
